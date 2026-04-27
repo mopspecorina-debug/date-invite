@@ -9,74 +9,78 @@
 body {
   margin: 0;
   height: 100vh;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: #ffd1dc;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #ffd6e0, #ffe9f0);
-  font-family: Arial, sans-serif;
-  overflow: hidden;
   text-align: center;
+}
+
+/* фоновые сердечки */
+.bg-heart {
+  position: absolute;
+  color: rgba(255,255,255,0.5);
+  font-size: 18px;
+  animation: floatBg 10s linear infinite;
+}
+
+@keyframes floatBg {
+  from { transform: translateY(100vh); }
+  to { transform: translateY(-10vh); }
 }
 
 .container {
   z-index: 2;
+  position: relative;
 }
 
 h1 {
   font-size: 24px;
-  margin: 20px;
+  margin-bottom: 20px;
 }
 
+/* енот */
+.raccoon {
+  transition: transform 0.3s ease;
+  margin-bottom: 10px;
+}
+
+/* кнопки */
 button {
   padding: 12px 20px;
   font-size: 16px;
   border: none;
   border-radius: 12px;
-  margin: 8px;
+  margin: 10px;
+  cursor: pointer;
 }
 
 .yes {
   background: #ff4d6d;
   color: white;
+  transition: transform 0.3s ease;
 }
 
 .no {
   background: white;
   position: absolute;
+  transition: top 0.6s ease, left 0.6s ease;
 }
 
-/* ёжик */
-.hedgehog {
-  font-size: 50px;
-  animation: bounce 1s infinite;
-}
-
-@keyframes bounce {
-  50% { transform: translateY(-10px); }
-}
-
-/* сердечки */
+/* сердечки при клике */
 .heart {
   position: absolute;
   font-size: 18px;
-  animation: floatUp 4s linear forwards;
+  animation: rise 4s linear forwards;
 }
 
-@keyframes floatUp {
+@keyframes rise {
   to {
-    transform: translateY(-800px);
+    transform: translateY(-700px);
     opacity: 0;
   }
-}
-
-/* кнопка музыки */
-.music-btn {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ff4d6d;
-  color: white;
 }
 </style>
 </head>
@@ -84,96 +88,103 @@ button {
 <body>
 
 <div class="container">
-  <div class="hedgehog">🦔</div>
+
+  <!-- 🦝 ЕНОТ -->
+  <div class="raccoon" id="raccoon">
+    <img src="https://ru.pinterest.com/pin/662803270195146257/" width="90">
+  </div>
+
   <h1 id="question">Пойдёшь со мной на свидание? 💖</h1>
+
   <button class="yes" onclick="nextStep()">Да</button>
   <button class="no" id="noBtn">Нет</button>
+
 </div>
 
-<button class="music-btn" onclick="playMusic()">Включить атмосферу 🎵</button>
-
-<audio id="audio">
-  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+<!-- 🎵 музыка (замени ссылку на свою) -->
+<audio id="audio" loop>
+  <source src="https://music.yandex.ru/album/33881295/track/132599303?utm_source=web&utm_medium=copy_link" type="audio/mpeg">
 </audio>
 
 <script>
 const questions = [
-  {
-    text: "Пойдёшь со мной на свидание? 💖",
-    yes: "Да",
-    no: "Нет"
-  },
-  {
-    text: "Зайдёшь за мной? 😉",
-    yes: "Обязательно",
-    no: "Не-а"
-  },
-  {
-    text: "Кушац планируется? 🍝",
-    yes: "Без этого никак",
-    no: "На диете"
-  },
-  {
-    text: "Я так и знала 😏 Жду тебя!"
-  }
+  {text:"Пойдёшь со мной на свидание? 💖", yes:"Да", no:"Нет"},
+  {text:"Зайдёшь за мной? 😉", yes:"Обязательно", no:"Не-а"},
+  {text:"Кушац планируется? 🍝", yes:"Без этого никак", no:"На диете"},
+  {text:"Я так и знала 😏 Жду тебя!"}
 ];
 
 let step = 0;
 
-const questionEl = document.getElementById("question");
+const q = document.getElementById("question");
 const noBtn = document.getElementById("noBtn");
 const yesBtn = document.querySelector(".yes");
+const raccoon = document.getElementById("raccoon");
 
-// ❌ для телефона — реагируем на касание
-document.addEventListener("touchstart", moveNo);
+// ❌ "Нет" убегает плавно
 document.addEventListener("mousemove", moveNo);
+document.addEventListener("touchstart", moveNo);
 
 function moveNo(e) {
-  const rect = noBtn.getBoundingClientRect();
-  const x = (e.touches ? e.touches[0].clientX : e.clientX);
-  const y = (e.touches ? e.touches[0].clientY : e.clientY);
+  const x = e.touches ? e.touches[0].clientX : e.clientX;
+  const y = e.touches ? e.touches[0].clientY : e.clientY;
 
-  if (Math.abs(x - rect.left) < 100 && Math.abs(y - rect.top) < 70) {
-    noBtn.style.left = Math.random() * (window.innerWidth - noBtn.offsetWidth) + "px";
-    noBtn.style.top = Math.random() * (window.innerHeight - noBtn.offsetHeight) + "px";
+  const rect = noBtn.getBoundingClientRect();
+
+  if (Math.abs(x - rect.left) < 120 && Math.abs(y - rect.top) < 80) {
+    noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+    noBtn.style.top = Math.random() * (window.innerHeight - 60) + "px";
   }
 }
 
+// 💖 логика шагов
 function nextStep() {
+
   step++;
 
+  // 📳 вибрация на телефоне
+  if (navigator.vibrate) {
+    navigator.vibrate(200);
+  }
+
+  // 🦝 реакция енота
+  raccoon.style.transform = "scale(1.25) rotate(-5deg)";
+  setTimeout(() => {
+    raccoon.style.transform = "scale(1) rotate(0deg)";
+  }, 400);
+
+  // конец
   if (step >= questions.length - 1) {
-    questionEl.innerText = questions[step].text;
+    q.innerText = questions[step].text;
     yesBtn.style.display = "none";
     noBtn.style.display = "none";
     return;
   }
 
-  questionEl.innerText = questions[step].text;
+  q.innerText = questions[step].text;
   yesBtn.innerText = questions[step].yes;
   noBtn.innerText = questions[step].no;
 
-  yesBtn.style.transform = "scale(" + (1 + step * 0.3) + ")";
+  yesBtn.style.transform = "scale(" + (1 + step*0.2) + ")";
 }
 
-// 💖 сердечки
-setInterval(() => {
+/* 💖 сердечки при клике */
+document.addEventListener("click", (e) => {
   const heart = document.createElement("div");
   heart.className = "heart";
   heart.innerText = "💖";
-  heart.style.left = Math.random() * window.innerWidth + "px";
-  heart.style.top = window.innerHeight + "px";
+  heart.style.left = e.clientX + "px";
+  heart.style.top = e.clientY + "px";
 
   document.body.appendChild(heart);
 
   setTimeout(() => heart.remove(), 4000);
-}, 300);
+});
 
-// 🎵 музыка
-function playMusic() {
-  document.getElementById("audio").play();
-}
-</script>
-
-</body>
-</html>
+/* 💗 фоновые сердечки */
+for(let i=0;i<20;i++){
+  const h = document.createElement("div");
+  h.className = "bg-heart";
+  h.innerText = "https://ru.pinterest.com/pin/580049627009890385/";
+  h.style.left = Math.random()*100+"vw";
+  h.style.animationDuration = (6+Math.random()*8)+"s";
