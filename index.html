@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Для тебя 💖</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ffd6e0, #ffe9f0);
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  text-align: center;
+}
+
+.container {
+  z-index: 2;
+}
+
+h1 {
+  font-size: 24px;
+  margin: 20px;
+}
+
+button {
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  margin: 8px;
+}
+
+.yes {
+  background: #ff4d6d;
+  color: white;
+}
+
+.no {
+  background: white;
+  position: absolute;
+}
+
+/* ёжик */
+.hedgehog {
+  font-size: 50px;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  50% { transform: translateY(-10px); }
+}
+
+/* сердечки */
+.heart {
+  position: absolute;
+  font-size: 18px;
+  animation: floatUp 4s linear forwards;
+}
+
+@keyframes floatUp {
+  to {
+    transform: translateY(-800px);
+    opacity: 0;
+  }
+}
+
+/* кнопка музыки */
+.music-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4d6d;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="hedgehog">🦔</div>
+  <h1 id="question">Пойдёшь со мной на свидание? 💖</h1>
+  <button class="yes" onclick="nextStep()">Да</button>
+  <button class="no" id="noBtn">Нет</button>
+</div>
+
+<button class="music-btn" onclick="playMusic()">Включить атмосферу 🎵</button>
+
+<audio id="audio">
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const questions = [
+  {
+    text: "Пойдёшь со мной на свидание? 💖",
+    yes: "Да",
+    no: "Нет"
+  },
+  {
+    text: "Зайдёшь за мной? 😉",
+    yes: "Обязательно",
+    no: "Не-а"
+  },
+  {
+    text: "Кушац планируется? 🍝",
+    yes: "Без этого никак",
+    no: "На диете"
+  },
+  {
+    text: "Я так и знала 😏 Жду тебя!"
+  }
+];
+
+let step = 0;
+
+const questionEl = document.getElementById("question");
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.querySelector(".yes");
+
+// ❌ для телефона — реагируем на касание
+document.addEventListener("touchstart", moveNo);
+document.addEventListener("mousemove", moveNo);
+
+function moveNo(e) {
+  const rect = noBtn.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX);
+  const y = (e.touches ? e.touches[0].clientY : e.clientY);
+
+  if (Math.abs(x - rect.left) < 100 && Math.abs(y - rect.top) < 70) {
+    noBtn.style.left = Math.random() * (window.innerWidth - noBtn.offsetWidth) + "px";
+    noBtn.style.top = Math.random() * (window.innerHeight - noBtn.offsetHeight) + "px";
+  }
+}
+
+function nextStep() {
+  step++;
+
+  if (step >= questions.length - 1) {
+    questionEl.innerText = questions[step].text;
+    yesBtn.style.display = "none";
+    noBtn.style.display = "none";
+    return;
+  }
+
+  questionEl.innerText = questions[step].text;
+  yesBtn.innerText = questions[step].yes;
+  noBtn.innerText = questions[step].no;
+
+  yesBtn.style.transform = "scale(" + (1 + step * 0.3) + ")";
+}
+
+// 💖 сердечки
+setInterval(() => {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerText = "💖";
+  heart.style.left = Math.random() * window.innerWidth + "px";
+  heart.style.top = window.innerHeight + "px";
+
+  document.body.appendChild(heart);
+
+  setTimeout(() => heart.remove(), 4000);
+}, 300);
+
+// 🎵 музыка
+function playMusic() {
+  document.getElementById("audio").play();
+}
+</script>
+
+</body>
+</html>
